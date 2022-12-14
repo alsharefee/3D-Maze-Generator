@@ -5,6 +5,6 @@ Unity tool that generate mazes in 3D.
 
 A perfect maze is defined as having no loops or closed circuits, and no inaccessible areas. In a perfect maze, any two points must be connected through a singular, unbroken path. 
 
-Song : Trenches - Retro Gaming Version [Royalty Free]
+Song : Hallowed - Retro Gaming Version [Royalty Free]
 Music provided and produced by LonePeakMusic 
-Video Link : https://youtu.be/j4jVh6-u0EI
+Video Link : https://youtu.be/NLU_CfZM8m4
