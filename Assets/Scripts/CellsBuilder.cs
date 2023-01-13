@@ -1,91 +1,98 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CellsBuilder : MonoBehaviour
+namespace MazeGenerator
 {
-	[Range(2, 50)] [SerializeField] int mazeWidth = 10;
-	[Range(2, 50)] [SerializeField] int mazeHeight = 10;
+    public class CellsBuilder : MonoBehaviour
+    {
+        public List<Cell> Cells = new List<Cell>();
 
-	[SerializeField] Transform mazeStartPosition = null;
+        [Range(2, 50)] [SerializeField] int _mazeWidth = 10;
+        [Range(2, 50)] [SerializeField] int _mazeHeight = 10;
+        [SerializeField] Transform _mazeStartPosition = null;
+        [Tooltip("Add here the cell prefab to be generated and has 4 walls w/ colliders.")]
+        [SerializeField] GameObject _cellModel = null;
+        [Tooltip("Distance between cells depend on the size of the cell.")]
+        [SerializeField] float _distanceBetweenCells = 2f;
+        [SerializeField] bool _debugView = true;
 
-	[Tooltip("Add here the cell prefab to be generated and has 4 walls w/ colliders.")]
-	[SerializeField] GameObject cellModel = null;
-	[Tooltip("Distance between cells depend on the size of the cell.")]
-	[SerializeField] float distanceBetweenCells = 2f;
+        Vector3 _pointer = new Vector3(0, 0, 0);
 
-	public List<Cells> cells = new List<Cells>();
-	Vector3 pointer = new Vector3(0, 0, 0);
+        public class Cell
+        {
+            public Vector2 Number;
+            public Vector3 Position = new Vector3(0, 0, 0);
+            public GameObject Model;
+        }
 
-	[SerializeField] bool debugView = true;
+        public void ResizeMazeHeight(float newHeight)
+        {
+            _mazeHeight = (int)newHeight;
+        }
+        public void ResizeMazeWidth(float newWidth)
+        {
+            _mazeWidth = (int)newWidth;
+        }
 
-	public class Cells
-	{
-		public Vector2 number;
-		public Vector3 position = new Vector3(0, 0, 0);
-		public GameObject model;
-	}
+        public void Reset()
+        {
+            foreach (var cell in Cells)
+            {
+                Destroy(cell.Model);
+            }
 
-	public void ResizeMazeHeight(float newHeight)
-	{
-		mazeHeight = (int)newHeight;
-	}
-	public void ResizeMazeWidth(float newWidth)
-	{
-		mazeWidth = (int)newWidth;
-	}
+            Cells.Clear();
+        }
+        public void StartBuildingCells()
+        {
+            _pointer = _mazeStartPosition.position;
 
-	public void Reset()
-	{
-		foreach (var cell in cells)
-		{
-			Destroy(cell.model);
-		}
+            int cellsNum = 0;
+            float x = 0;
 
-		cells.Clear();
-	}
-	public void StartBuilding()
-	{
-		pointer = mazeStartPosition.position;
+            for (int i = 0; i < _mazeWidth; i++)
+            {
+                float z = 0;
 
-		int cellsNum = 0;
-		float x = 0;
+                for (int j = 0; j < _mazeHeight; j++)
+                {
+                    BuildCell(ref cellsNum, x, i, ref z, j);
+                }
 
-		for (int i = 0; i < mazeWidth; i++)
-		{
-			float z = 0;
+                x += _distanceBetweenCells;
+            }
+        }
 
-			for (int j = 0; j < mazeHeight; j++)
-			{
-				pointer = new Vector3(x, pointer.y, z);
+        private void BuildCell(ref int cellsNum, float x, int i, ref float z, int j)
+        {
+            _pointer = new Vector3(x, _pointer.y, z);
 
-				Cells cell = new Cells()
-				{
-					number = new Vector2(i, j),
-					position = pointer,
-					model = null
-				};
+            Cell cell = new Cell()
+            {
+                Number = new Vector2(i, j),
+                Position = _pointer,
+                Model = null
+            };
 
-				cells.Add(cell);
+            Cells.Add(cell);
 
-				cells[cellsNum].model = Instantiate(cellModel);
-				cells[cellsNum].model.transform.position = cells[cellsNum].position;
-				cells[cellsNum].model.gameObject.name = "Cell " + cells[cellsNum].number.x + ", " + cells[cellsNum].number.y;
+            Cells[cellsNum].Model = Instantiate(_cellModel);
+            Cells[cellsNum].Model.transform.position = Cells[cellsNum].Position;
+            Cells[cellsNum].Model.gameObject.name = "Cell " + Cells[cellsNum].Number.x + ", " + Cells[cellsNum].Number.y;
 
-				cellsNum++;
-				z += distanceBetweenCells;
-			}
-			x += distanceBetweenCells;
-		}
-	}
+            cellsNum++;
+            z += _distanceBetweenCells;
+        }
 
-	void OnDrawGizmos()
-	{
-		if (debugView)
-			foreach (var cell in cells)
-			{
-				Gizmos.color = Color.yellow;
-				Gizmos.DrawSphere(cell.position, 0.3f);
-			}
-	}
+        void OnDrawGizmos()
+        {
+            if (_debugView)
+                foreach (var cell in Cells)
+                {
+                    Gizmos.color = Color.yellow;
+                    Gizmos.DrawSphere(cell.Position, 0.3f);
+                }
+        }
+    }
+
 }
